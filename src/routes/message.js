@@ -29,12 +29,19 @@ router.get('/:messageId', (req, res) => {
 /** Route to add a new message. */
 router.post('/', (req, res) => {
     let message = new Message(req.body)
-    message.save().then(messageResult => {
-        return res.json({message: messageResult})
+    message.save().then(message => {
+        return User.findById(message.author)
     })
-    .catch((err) => {
+    .then(user => {
+        console.log(user)
+        user.messages.unshift(message)
+        return user.save()
+    })
+    .then(_ => {
+        return res.send(message)
+    }).catch(err => {
         throw err.message
-    });
+    })
 })
 
 /** Route to update an existing message. */
